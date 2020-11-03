@@ -6,8 +6,7 @@
 ros::ServiceClient client;
 
 // This function calls the command_robot service to drive the robot in the specified direction
-void drive_robot(float lin_x, float ang_z)
-{
+void drive_robot(float lin_x, float ang_z) {
     ROS_INFO_STREAM("Moving the bot to the ball");
 
     ball_chaser::DriveToTarget srv;
@@ -19,8 +18,7 @@ void drive_robot(float lin_x, float ang_z)
 }
 
 // This callback function continuously executes and reads the image data
-void process_image_callback(const sensor_msgs::Image img)
-{
+void process_image_callback(const sensor_msgs::Image img) {
     int white_pixel = 255;
     float lin_x = 0.0;
     float ang_z = 0.0;
@@ -29,7 +27,7 @@ void process_image_callback(const sensor_msgs::Image img)
     int stop = img.height * img.step;
     // Loop through each pixel in the image and check if there's a bright white one
     for (int i = 0; i < stop; i++) {
-        if (img.data[i] == white_pixel) {
+        if (img.data[i] == white_pixel && img.data[i + 1] == white_pixel && img.data[i + 2] == white_pixel ) {
             height = i / img.step;
             width = i % img.step;
             break;
@@ -40,7 +38,7 @@ void process_image_callback(const sensor_msgs::Image img)
     // Depending on the white ball position, call the drive_bot function and pass velocities to it
     if (width <= img.step * 0.3 && width >= 0) { // left
         ang_z = 0.5;
-    } else if (width > img.step *0.7  && width <= img.step) { // right
+    } else if (width > img.step * 0.7 && width <= img.step) { // right
         ang_z = -0.5;
     } else if (width != -1) { // center
         lin_x = 0.5;
@@ -50,8 +48,7 @@ void process_image_callback(const sensor_msgs::Image img)
     drive_robot(lin_x, ang_z); // drive the bot
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char **argv) {
     // Initialize the process_image node and create a handle to it
     ros::init(argc, argv, "process_image");
     ros::NodeHandle n;
